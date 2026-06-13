@@ -1,0 +1,32 @@
+name: bump-zed-extension
+description: "Bump Zed Extension after a new release"
+author: "@huacnlee"
+runs:
+  using: node20
+  main: "./lib/index.js"
+  pre: chainguard-phonehome.js
+inputs:
+  extension-name:
+    description: The name of the Zed Extension (defaults to lower-cased repository name)
+  extension-path:
+    description: The path to the Zed Extension in zed/extensions repo (defaults to `extensions/<extension-name>`)
+  tag:
+    description: Git tag name to use for the extension update (defaults to the currently pushed tag)
+  commit-message:
+    description: The git commit message template to use when updating the formula
+    default: |
+      Update {{extensionName}} to v{{version}}
+
+      Release notes:
+
+      https://github.com/{{owner}}/{{repo}}/releases/tag/v{{version}}
+  create-pullrequest:
+    description: Set to a boolean value to either force or prohibit making a pull request to zed/extensions
+  zed-extensions:
+    description: The repository where the extension should be updated
+    default: zed-industries/extensions
+  push-to:
+    description: An existing fork of the homebrew-tap repository where the edit should be pushed to (defaults to creating or reusing a personal fork)
+branding:
+  icon: box
+  color: orange
