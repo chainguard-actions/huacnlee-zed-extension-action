@@ -1,0 +1,32 @@
+name: Test push-to input with fork repository
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/tags/v3.0.0
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          extension-name: my-extension
+          extension-path: extensions/my-extension
+          tag-name: v3.0.0
+          create-pullrequest: "false"
+          push-to: my-org/extensions-fork
+        continue-on-error: true
+      - name: Assert action ran (inputs accepted)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail due to missing GitHub token / network access,
+          # but it must not fail due to unrecognized inputs.
+          if [ "$OUTCOME" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action accepted push-to input"

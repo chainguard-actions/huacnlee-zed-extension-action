@@ -1,14 +1,44 @@
-# huacnlee/zed-extension-action
+# Zed Extensions GitHub Action
 
-Bump Zed Extension after a new release
+This action for automatically bump Zed Extensions version after a release.
 
-Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/huacnlee/zed-extension-action](https://github.com/huacnlee/zed-extension-action).
+## Usage
 
-## Versions
+Create a `release.yml` file in `.github/workflows` directory with the following content:
 
-| Version | Tag | Upstream commit |
-|---------|-----|-----------------|
-| v2.0.0 | [`v2.0.0`](https://github.com/chainguard-actions/huacnlee-zed-extension-action/tree/v2.0.0) | [`8cd592a`](https://github.com/huacnlee/zed-extension-action/commit/8cd592a0d24e1e41157740f1a529aeabddc88a1b) |
+```yml
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  homebrew:
+    name: Release Zed Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: huacnlee/zed-extension-action@v1
+        with:
+          extension-name: my_extension
+          push-to: your-name/extensions
+        env:
+          # the personal access token should have "repo" & "workflow" scopes
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+```
+
+The `COMMITTER_TOKEN` is a personal access token with `repo` and `workflow` scopes. You can create one in your [GitHub settings](https://github.com/settings/tokens).
+
+## How it works
+
+When a new tag is pushed, the action will:
+
+1. Check if the tag is a valid version number.
+2. Create a Pull Request with the new version to [Zed Extensions](https://github.com/zed-industries/extensions) repository.
+3. Merge the Pull Request if it's approved, then the extension version will released.
+
+## License
+
+MIT
 
 ## Privacy
 
