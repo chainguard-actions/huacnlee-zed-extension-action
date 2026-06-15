@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v1.0.0 | [`v1.0.0`](https://github.com/chainguard-actions/huacnlee-zed-extension-action/tree/v1.0.0) | [`6a16873`](https://github.com/huacnlee/zed-extension-action/commit/6a168731f1d994905eeb552b3b42b0cb6c4d12e6) |
 | v2.0.0 | [`v2.0.0`](https://github.com/chainguard-actions/huacnlee-zed-extension-action/tree/v2.0.0) | [`8cd592a`](https://github.com/huacnlee/zed-extension-action/commit/8cd592a0d24e1e41157740f1a529aeabddc88a1b) |
 
 ## Privacy
