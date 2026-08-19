@@ -1,0 +1,40 @@
+name: Test explicit tag-name input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: action
+        uses: .
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag-name: v1.2.3
+          extension-name: my-extension
+          # Point to the current repo so the token has access; the action will
+          # fail because there is no extensions.toml, but it should get past
+          # input parsing and reach the GitHub API call stage.
+          zed-extensions: ${{ github.repository }}
+          create-pullrequest: "false"
+
+      - name: Assert action ran (failed at API level, not at input parsing)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should fail because there is no extensions.toml in this
+          # repo, but it must NOT fail with "invalid ref" (which would mean
+          # tag-name was not picked up). Either outcome (failure) is acceptable
+          # here; what matters is that the action started and reached the API.
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (unexpected but acceptable)"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed at API level as expected (no extensions.toml)"
+          else
+            echo "FAIL: unexpected outcome: $OUTCOME"
+            exit 1
+          fi

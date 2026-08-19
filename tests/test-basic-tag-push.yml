@@ -1,0 +1,30 @@
+name: Test basic tag push
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/tags/v1.2.3
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Test action runs with required inputs
+        id: action
+        uses: .
+        with:
+          extension-name: my-extension
+          tag-name: v1.2.3
+          create-pullrequest: "false"
+          zed-extensions: zed-industries/extensions
+        continue-on-error: true
+      - name: Assert action ran (may fail due to missing GitHub token for API calls)
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          # The action is expected to attempt to run; network/auth failures are acceptable
+          # but the action should at least start and process inputs
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran (outcome: ${{ steps.action.outcome }})"

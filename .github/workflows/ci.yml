@@ -1,0 +1,19 @@
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+      - uses: oven-sh/setup-bun@f4d14e03ff726c06358e5557344e1da148b56cf7 # v1
+        with:
+          bun-version: latest
+      - name: Install dependencies
+        run: bun install
+      - name: Test
+        run: |
+          bun run test

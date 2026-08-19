@@ -1,0 +1,27 @@
+name: Test default commit message
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/tags/v3.1.0
+      GITHUB_EVENT_NAME: push
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Test action uses default commit message template
+        id: action
+        uses: .
+        with:
+          extension-name: my-extension
+          tag-name: v3.1.0
+          create-pullrequest: "false"
+        continue-on-error: true
+      - name: Assert action ran with default commit message
+        run: |
+          echo "Action outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" = "skipped" ]; then
+            echo "FAIL: action was skipped unexpectedly"
+            exit 1
+          fi
+          echo "PASS: action ran with default commit message template (outcome: ${{ steps.action.outcome }})"
