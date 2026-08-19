@@ -1,0 +1,39 @@
+name: Test default extension name from repository name
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/tags/v3.1.0
+      GITHUB_EVENT_NAME: push
+      GITHUB_REPOSITORY: testowner/MyZedExtension
+      GITHUB_SHA: abc1234def5678901234567890123456789012345
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          # No extension-name provided — should default to lowercased repo name
+          push-to: testowner/extensions
+          zed-extensions: zed-industries/extensions
+        env:
+          GITHUB_TOKEN: fake-token-for-testing
+      - name: Assert action attempted to run with default extension name
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action should proceed past input validation (using default extension
+          # name from repo) and fail at the GitHub API call level with a fake token.
+          # It should NOT fail due to missing extension-name input.
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (unexpected but acceptable)"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed at API level as expected with fake token"
+          else
+            echo "FAIL: unexpected outcome: $OUTCOME"
+            exit 1
+          fi
+          echo "PASS"

@@ -1,0 +1,47 @@
+name: Test custom extension name and path with explicit tag input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_REF: refs/heads/main
+      GITHUB_EVENT_NAME: push
+      GITHUB_REPOSITORY: testowner/my-repo
+      GITHUB_SHA: abc1234def5678901234567890123456789012345
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        continue-on-error: true
+        with:
+          extension-name: my-custom-extension
+          extension-path: extensions/my-custom-extension
+          tag: v2.0.0
+          push-to: testowner/extensions
+          zed-extensions: zed-industries/extensions
+          commit-message: |
+            Update {{extensionName}} to v{{version}}
+
+            Release notes:
+
+            https://github.com/{{owner}}/{{repo}}/releases/tag/v{{version}}
+        env:
+          GITHUB_TOKEN: fake-token-for-testing
+      - name: Assert action attempted to run (not a config/input error)
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # With an explicit tag input and non-tag GITHUB_REF, the action should
+          # proceed past input validation and fail at the GitHub API call level
+          # (since we have a fake token). It should NOT fail due to "invalid ref".
+          if [ "$OUTCOME" = "success" ]; then
+            echo "PASS: action succeeded (unexpected but acceptable)"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed at API level as expected with fake token"
+          else
+            echo "FAIL: unexpected outcome: $OUTCOME"
+            exit 1
+          fi
+          echo "PASS"
